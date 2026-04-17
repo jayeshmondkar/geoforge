@@ -67,7 +67,7 @@ if st.button("Analyze", use_container_width=True):
             with st.spinner("Analyzing AI citation patterns..."):
 
                 response = requests.post(
-                    "http://127.0.0.1:8000/analyze",
+                    "https://geoforgeai.up.railway.app/analyze",
                     json={
                         "target_url": target,
                         "competitor_url": competitor
