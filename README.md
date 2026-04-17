@@ -1,78 +1,188 @@
 [![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org)
 
-# 🚀 GeoForge
+# GeoForge � AI Citation Intelligence Platform (GEO)
 
-**Open-source GEO (Generative Engine Optimization) toolkit**
-Understand how AI systems (ChatGPT, Claude, Perplexity) choose what to cite.
+GeoForge is an open-source platform that helps you understand **why AI systems (ChatGPT, Claude, Gemini) choose certain content over others** � and how to optimize your content to get cited.
 
 ---
 
-## 🧠 Why GeoForge?
+## What is GEO?
 
-Search is changing.
+**GEO (Generative Engine Optimization)** is the next evolution of SEO.
 
-Users no longer click links—they ask AI.
+Instead of optimizing for search engines, you optimize for:
 
-👉 The question is no longer:
-**“Do you rank on Google?”**
-
-👉 It’s:
-**“Does AI mention you?”**
+* AI-generated answers
+* LLM citations
+* Retrieval systems (RAG)
 
 GeoForge helps you:
 
-* 🔍 Analyze why competitors get cited
-* 🧠 Understand AI content preferences
-* 📊 Simulate RAG (retrieval behavior)
-* ⏱ Track visibility over time
+* Analyze why competitors are preferred by AI
+* Detect missing entities and concepts
+* Identify semantic content gaps
+* Generate AI-optimized content improvements
 
 ---
 
-## 🔥 Features
+## Features
 
-* 🤖 AI-powered citation analysis
-* 🔁 Multi-prompt GEO testing
-* 📦 RAG chunk simulation
-* 📊 Citation tracking
-* 🕵️ Competitor monitoring
-* 🖥 Streamlit dashboard
+### AI-Powered Content Analysis
+
+Compare two webpages and understand:
+
+* Which one AI prefers
+* Why it performs better
+* How to improve weaker content
 
 ---
 
-## ⚡ 2-Minute Setup
+### Semantic Similarity Scoring
 
-### 1. Clone
+* Uses embeddings (sentence-transformers)
+* Measures how close your content is to competitors
+
+---
+
+### Entity Detection
+
+* Extracts important entities (brands, topics, keywords)
+* Shows what your content is missing
+
+---
+
+### Semantic Gap Detection
+
+* Embedding-based gap analysis (not just keywords)
+* Finds missing ideas, not just words
+
+---
+
+### AI Content Recommendations
+
+* Suggests new sections to add
+* Helps structure content for AI retrieval
+
+---
+
+### Multi-Model Comparison
+
+* OpenAI (real)
+* Claude (mock)
+* Gemini (mock)
+
+---
+
+### Data Tracking
+
+* Stores analysis results in SQLite
+* Displays recent analyses in UI
+
+---
+
+### API + Rate Limiting
+
+* API key authentication
+* Request limits (free tier simulation)
+
+---
+
+## ?Architecture
+
+```
+Streamlit UI (Frontend)
+        ?
+FastAPI Backend (API Layer)
+        ?
+GeoForge Engine (Skills + AI)
+        ?
+SQLite Database
+```
+
+---
+
+## Project Structure
+
+```
+GeoForge/
+�
++-- backend/
+�   +-- main.py
+�   +-- auth.py
+�   +-- __init__.py
+�
++-- src/geoforge/
+�   +-- core/
+�   +-- engine/
+�   +-- skills/
+�
++-- dashboard.py
++-- requirements.txt
++-- README.md
+```
+
+---
+
+## Installation (Local Setup)
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/geoforge.git
+git clone https://github.com/your-username/geoforge.git
 cd geoforge
 ```
 
 ---
 
-### 2. Setup
+### 2. Create virtual environment
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate   # Windows
+```
+
+---
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-pip install -e .
 ```
 
 ---
 
-### 3. Add API key
+### 4. Install spaCy model
 
-Create `.env`:
-
-```env
-OPENAI_API_KEY=your_key_here
+```bash
+python -m spacy download en_core_web_sm
 ```
 
 ---
 
-### 4. Run dashboard
+### 5. Set environment variable
+
+```bash
+setx OPENAI_API_KEY "your-api-key"
+```
+
+Restart terminal after this.
+
+---
+
+## Run the App
+
+### Start Backend (FastAPI)
+
+```bash
+python -m uvicorn backend.main:app --reload
+```
+
+API docs: http://127.0.0.1:8000/docs
+
+---
+
+### Start Frontend (Streamlit)
 
 ```bash
 streamlit run dashboard.py
@@ -80,74 +190,110 @@ streamlit run dashboard.py
 
 ---
 
-## 🎥 Demo (Try This)
+## Deployment
 
-Enter:
+### Backend (Railway)
 
-* Target → https://www.yourwebsiteurl.com
-* Competitor → https://www.competitorwebsiteurl.com
-
-Click **Analyze**
-
-👉 You’ll see:
-
-* Why competitor is preferred
-* Content gaps
-* GEO recommendations
-
----
-
-## 🧪 CLI Example
+Start command:
 
 ```bash
-geoforge run citation-gap \
-  -p target_url=https://example.com \
-  -p competitor_url=https://competitor.com
+python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+```
+
+Add environment variable:
+
+```
+OPENAI_API_KEY=your_key
 ```
 
 ---
 
-## 📊 Example Output
+### Frontend (Streamlit Cloud)
+
+* Deploy `dashboard.py`
+* Update API URL to deployed backend
+
+---
+
+## API Usage
+
+### Endpoint
+
+```
+POST /analyze
+```
+
+### Headers
+
+```
+x-api-key: test-key-123
+```
+
+### Body
 
 ```json
 {
-  "analysis": "Competitor provides clearer structured answers...",
-  "recommendations": [
-    "Add concise definitions",
-    "Improve heading structure",
-    "Increase factual density"
-  ]
+  "target_url": "https://example.com",
+  "competitor_url": "https://competitor.com"
 }
 ```
 
 ---
 
-## 🧠 How It Works
+## Known Limitations
 
-GeoForge combines:
-
-* LLM analysis
-* content extraction
-* RAG simulation
-* vector embeddings (optional)
+* SQLite (not production-scale)
+* Rate limiting resets on restart
+* Claude/Gemini are mocked
+* OpenAI requires billing/credits
 
 ---
 
-## 🛠 Roadmap
+## Roadmap
 
-* [ ] multi-model testing (Claude, GPT, Gemini)
-* [ ] citation ranking tracker
-* [ ] SaaS dashboard
-* [ ] team collaboration
-
----
-
-## 🤝 Contributing
-
-PRs welcome.
+* [ ] PostgreSQL + Redis
+* [ ] User authentication (login/signup)
+* [ ] Stripe billing integration
+* [ ] Real Claude & Gemini APIs
+* [ ] RAG explainability (chunk-level insights)
+* [ ] Advanced UI (React dashboard)
 
 ---
 
-## ⭐ If this helps you, please star the repo
+## Why This Matters
+
+AI is changing how content is discovered.
+
+Instead of asking:
+
+> �How do I rank on Google?�
+
+You now ask:
+
+> �Why does AI mention my competitor instead of me?�
+
+GeoForge answers that.
 
 ---
+
+## Contributing
+
+Pull requests are welcome.
+
+If you're building in **AI search / GEO / LLM optimization**, this is your base.
+
+---
+
+## ? Support
+
+If you found this useful:
+
+* ? Star the repo
+* Share it
+* Give feedback
+
+---
+
+## Built for the Future of AI Search
+
+**GEO > SEO**
