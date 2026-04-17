@@ -1,0 +1,22 @@
+Metadata-Version: 2.4
+Name: geoforge
+Version: 0.1.0
+Summary: GeoForge - modular skill framework
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2
+Requires-Dist: pydantic-settings>=2
+Requires-Dist: typer>=0.9
+Requires-Dist: rich>=13
+Requires-Dist: structlog>=24
+
+# GeoForge
+
+Clean working scaffold for GEO skill framework.
+
+## Run
+
+```bash
+pip install -e .
+geoforge list
+```

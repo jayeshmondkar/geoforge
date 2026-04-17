@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoforge"
+version = "0.1.0"
+description = "GeoForge - modular skill framework"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2",
+  "pydantic-settings>=2",
+  "typer>=0.9",
+  "rich>=13",
+  "structlog>=24"
+]
+
+[project.scripts]
+geoforge = "geoforge.cli.main:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]

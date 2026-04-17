@@ -1,0 +1,5 @@
+pydantic>=2
+pydantic-settings>=2
+typer>=0.9
+rich>=13
+structlog>=24
