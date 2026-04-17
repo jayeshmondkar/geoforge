@@ -19,14 +19,20 @@ class CitationGapSkill(BaseSkill):
     def extract_text(self, html: str) -> str:
         soup = BeautifulSoup(html, "html.parser")
         paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")]
-        return " ".join(paragraphs[:50])  # limit content
+        return " ".join(paragraphs[:50])
+
+    def extract_key_reason(self, ai_text: str):
+        lines = ai_text.split("\n")
+        return lines[:3]
 
     def ai_analysis(self, target_text: str, competitor_text: str):
 
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
         prompt = f"""
-        Compare these two webpages for AI citation quality.
+        You are an AI search engine evaluator.
+
+        Compare these two webpages.
 
         TARGET PAGE:
         {target_text}
@@ -34,10 +40,13 @@ class CitationGapSkill(BaseSkill):
         COMPETITOR PAGE:
         {competitor_text}
 
-        Answer:
-        1. Why competitor might be preferred by AI systems
-        2. Key content differences
-        3. Specific improvements for target page
+        Explain:
+        1. Which page AI would prefer
+        2. Why (specific reasons)
+        3. What makes content better for retrieval
+        4. Improvements for the weaker page
+
+        Keep answer concise and structured.
         """
 
         response = client.chat.completions.create(
@@ -60,7 +69,8 @@ class CitationGapSkill(BaseSkill):
         ai_result = self.ai_analysis(target_text, comp_text)
 
         return {
-            "ai_analysis": ai_result
+            "analysis": ai_result,
+            "key_reasons": self.extract_key_reason(ai_result)
         }
 
 

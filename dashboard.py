@@ -14,19 +14,28 @@ tab1, tab2, tab3 = st.tabs(["Run Analysis", "Tracking", "RAG Insights"])
 # TAB 1 — RUN
 # ---------------------------
 with tab1:
-    st.header("Run GEO Analysis")
+    st.header("🚀 GEO Engine")
 
+    topic = st.text_input("Topic", placeholder="e.g. business directory")
     target = st.text_input("Target URL")
     competitor = st.text_input("Competitor URL")
 
-    if st.button("Analyze"):
-        skill = registry.get("citation-gap")()
+    if st.button("Run GEO Engine"):
+        skill = registry.get("geo-engine")()
+
         result = skill.run(
+            topic=topic,
             target_url=target,
             competitor_url=competitor
         )
 
-        st.json(result.model_dump())
+        data = result.model_dump()
+
+        st.subheader("📊 GEO Score")
+        st.metric("Competitor GEO Score", f"{data['data']['summary']['geo_score']}%")
+
+        st.subheader("🔍 Detailed Results")
+        st.json(data)
 
 # ---------------------------
 # TAB 2 — TRACKING
