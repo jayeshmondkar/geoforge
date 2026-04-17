@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+streamlit
+requests
+beautifulsoup4
+openai
+sentence-transformers
+chromadb
+spacy
+scikit-learn
+pandas
+en-core-web-sm
