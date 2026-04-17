@@ -1,3 +1,6 @@
+[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org)
+
 # 🚀 GeoForge
 
 **Open-source GEO (Generative Engine Optimization) toolkit**
@@ -81,8 +84,8 @@ streamlit run dashboard.py
 
 Enter:
 
-* Target → https://www.justdial.com
-* Competitor → https://www.indiamart.com
+* Target → https://www.yourwebsiteurl.com
+* Competitor → https://www.competitorwebsiteurl.com
 
 Click **Analyze**
 
