@@ -15,7 +15,12 @@ src/geoforge/core/base.py
 src/geoforge/core/exceptions.py
 src/geoforge/core/registry.py
 src/geoforge/core/schema.py
+src/geoforge/engine/db.py
+src/geoforge/engine/entity.py
+src/geoforge/engine/gap_analyzer.py
 src/geoforge/engine/monitor.py
+src/geoforge/engine/multi_model.py
+src/geoforge/engine/recommender.py
 src/geoforge/engine/tracker.py
 src/geoforge/engine/vector_store.py
 src/geoforge/exporters/__init__.py

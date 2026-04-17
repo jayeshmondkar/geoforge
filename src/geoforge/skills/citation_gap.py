@@ -1,5 +1,12 @@
 from geoforge.core.base import BaseSkill
 from geoforge.core.registry import registry
+from geoforge.engine.vector_store import similarity_score
+from geoforge.engine.entity import extract_entities
+from geoforge.engine.gap_analyzer import find_semantic_gaps
+from geoforge.engine.recommender import generate_recommendations
+from geoforge.engine.multi_model import compare_models
+from geoforge.engine.db import save_result
+
 import requests
 from bs4 import BeautifulSoup
 import os
@@ -11,9 +18,8 @@ class CitationGapSkill(BaseSkill):
 
     def fetch_page(self, url: str) -> str:
         try:
-            response = requests.get(url, timeout=10)
-            return response.text
-        except Exception:
+            return requests.get(url, timeout=10).text
+        except:
             return ""
 
     def extract_text(self, html: str) -> str:
@@ -22,39 +28,36 @@ class CitationGapSkill(BaseSkill):
         return " ".join(paragraphs[:50])
 
     def extract_key_reason(self, ai_text: str):
-        lines = ai_text.split("\n")
-        return lines[:3]
+        return ai_text.split("\n")[:3]
 
-    def ai_analysis(self, target_text: str, competitor_text: str):
-
+def ai_analysis(self, target_text: str, competitor_text: str):
+    try:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
         prompt = f"""
-        You are an AI search engine evaluator.
+        Compare these pages for AI citation:
 
-        Compare these two webpages.
-
-        TARGET PAGE:
+        TARGET:
         {target_text}
 
-        COMPETITOR PAGE:
+        COMPETITOR:
         {competitor_text}
 
         Explain:
-        1. Which page AI would prefer
-        2. Why (specific reasons)
-        3. What makes content better for retrieval
-        4. Improvements for the weaker page
-
-        Keep answer concise and structured.
+        - who wins
+        - why
+        - improvements
         """
 
-        response = client.chat.completions.create(
+        res = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
         )
 
-        return response.choices[0].message.content
+        return res.choices[0].message.content
+
+    except Exception as e:
+        return f"AI analysis unavailable (quota issue). Basic comparison only."
 
     def execute(self, **kwargs):
         target_url = kwargs.get("target_url")
@@ -68,11 +71,32 @@ class CitationGapSkill(BaseSkill):
 
         ai_result = self.ai_analysis(target_text, comp_text)
 
+        sim = similarity_score(target_text, comp_text)
+
+        target_entities = extract_entities(target_text)
+        comp_entities = extract_entities(comp_text)
+        missing = list(set(comp_entities) - set(target_entities))
+
+        target_chunks = target_text.split(".")
+        comp_chunks = comp_text.split(".")
+
+        semantic_gaps = find_semantic_gaps(target_chunks, comp_chunks)
+
+        recommendations = generate_recommendations(semantic_gaps)
+
+        model_outputs = compare_models(ai_result)
+
+        save_result(ai_result)
+
         return {
             "analysis": ai_result,
-            "key_reasons": self.extract_key_reason(ai_result)
+            "key_reasons": self.extract_key_reason(ai_result),
+            "similarity_score": round(sim, 3),
+            "missing_entities": missing[:10],
+            "semantic_gaps": semantic_gaps,
+            "recommended_sections": recommendations,
+            "model_comparison": model_outputs
         }
 
 
-# Register skill
 registry.register(CitationGapSkill)

@@ -1,66 +1,123 @@
 import streamlit as st
-import json
-import os
-from geoforge.core.registry import registry
-import geoforge.skills
+import requests
+import sqlite3
 
-st.set_page_config(layout="wide")
-
-st.title("🚀 GeoForge GEO Intelligence")
-
-tab1, tab2, tab3 = st.tabs(["Run Analysis", "Tracking", "RAG Insights"])
+# ? MUST BE FIRST
+st.set_page_config(page_title="GeoForge", layout="wide")
 
 # ---------------------------
-# TAB 1 — RUN
+# SIDEBAR
 # ---------------------------
-with tab1:
-    st.header("🚀 GEO Engine")
+st.sidebar.title("GeoForge")
 
-    topic = st.text_input("Topic", placeholder="e.g. business directory")
-    target = st.text_input("Target URL")
-    competitor = st.text_input("Competitor URL")
+st.sidebar.markdown("""
+### Plan
 
-    if st.button("Run GEO Engine"):
-        skill = registry.get("geo-engine")()
+**Free Tier**
+- 5 analyses/day
 
-        result = skill.run(
-            topic=topic,
-            target_url=target,
-            competitor_url=competitor
-        )
-
-        data = result.model_dump()
-
-        st.subheader("📊 GEO Score")
-        st.metric("Competitor GEO Score", f"{data['data']['summary']['geo_score']}%")
-
-        st.subheader("🔍 Detailed Results")
-        st.json(data)
+**Pro (coming soon)**
+- unlimited analysis
+- multi-model insights
+""")
 
 # ---------------------------
-# TAB 2 — TRACKING
+# RECENT ANALYSES (SAFE)
 # ---------------------------
-with tab2:
-    st.header("Citation Tracking")
+st.sidebar.subheader("Recent Analyses")
 
-    if os.path.exists("tracking.json"):
-        with open("tracking.json") as f:
-            data = json.load(f)
+try:
+    conn = sqlite3.connect("geoforge.db")
+    cursor = conn.cursor()
 
-        st.write(data)
+    rows = cursor.execute(
+        "SELECT timestamp FROM results ORDER BY id DESC LIMIT 5"
+    ).fetchall()
+
+    for r in rows:
+        st.sidebar.write(r[0])
+
+except Exception:
+    st.sidebar.write("No history yet")
+
+# ---------------------------
+# MAIN UI
+# ---------------------------
+st.title("?? GeoForge")
+st.markdown("### AI Citation Intelligence Platform")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    target = st.text_input("Target URL", placeholder="https://your-site.com")
+
+with col2:
+    competitor = st.text_input("Competitor URL", placeholder="https://competitor.com")
+
+# ---------------------------
+# ANALYZE BUTTON
+# ---------------------------
+if st.button("Analyze", use_container_width=True):
+
+    if not target or not competitor:
+        st.error("Please enter both URLs")
+
     else:
-        st.write("No tracking data yet")
+        try:
+            with st.spinner("Analyzing AI citation patterns..."):
 
-# ---------------------------
-# TAB 3 — RAG
-# ---------------------------
-with tab3:
-    st.header("RAG Simulation")
+                response = requests.post(
+                    "http://127.0.0.1:8000/analyze",
+                    json={
+                        "target_url": target,
+                        "competitor_url": competitor
+                    },
+                    headers={"x-api-key": "test-key-123"},
+                    timeout=60
+                )
 
-    url = st.text_input("Enter URL")
+            if response.status_code != 200:
+                st.error(f"API failed: {response.text}")
 
-    if st.button("Simulate RAG"):
-        skill = registry.get("rag-simulate")()
-        result = skill.run(url=url)
+            else:
+                result = response.json()
 
-        st.json(result.model_dump())
+                if not result or result.get("data") is None:
+                    st.error(f"API Error: {result}")
+
+                else:
+                    data = result.get("data", {})
+
+                    # ---------------------------
+                    # METRICS
+                    # ---------------------------
+                    st.subheader("?? Overview")
+
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        st.metric("Similarity Score", data.get("similarity_score", "N/A"))
+
+                    with col2:
+                        st.metric("Entities Missing", len(data.get("missing_entities", [])))
+
+                    # ---------------------------
+                    # INSIGHTS
+                    # ---------------------------
+                    st.subheader("?? Key Reasons")
+                    st.write(data.get("key_reasons", []))
+
+                    st.subheader("?? Missing Entities")
+                    st.write(data.get("missing_entities", []))
+
+                    st.subheader("?? Semantic Gaps")
+                    st.write(data.get("semantic_gaps", []))
+
+                    st.subheader("?? Recommended Content Sections")
+                    st.write(data.get("recommended_sections", ""))
+
+                    st.subheader("?? Model Comparison")
+                    st.json(data.get("model_comparison", {}))
+
+        except Exception as e:
+            st.error(f"Error connecting to API: {e}")
