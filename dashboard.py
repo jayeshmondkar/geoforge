@@ -43,7 +43,7 @@ except Exception:
 # ---------------------------
 # MAIN UI
 # ---------------------------
-st.title("?? GeoForge")
+st.title("###GeoForge")
 st.markdown("### AI Citation Intelligence Platform")
 
 col1, col2 = st.columns(2)
