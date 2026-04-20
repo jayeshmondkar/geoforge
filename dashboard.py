@@ -3,7 +3,7 @@ from geoforge.skills.citation_gap import CitationGapSkill
 
 st.set_page_config(page_title="GeoForge", layout="wide")
 
-st.title("🚀 GeoForge — AI Visibility")
+st.title("🚀 GeoForge — AI Visibility Platform")
 
 target = st.text_input("Target URL")
 competitor = st.text_input("Competitor URL")
@@ -12,7 +12,7 @@ topic = st.text_input("Topic")
 if st.button("Analyze"):
 
     if not target or not competitor:
-        st.error("Enter URLs")
+        st.error("Please enter both URLs")
         st.stop()
 
     with st.spinner("Running AI analysis..."):
@@ -35,5 +35,5 @@ if st.button("Analyze"):
         st.subheader("🧠 Query Results")
 
         for q in data["queries"]:
-            st.write(q["query"])
+            st.markdown(f"### 🔍 {q['query']}")
             st.write(q["result"]["answer"])
