@@ -1,61 +1,39 @@
 ﻿import streamlit as st
-import requests
-import sqlite3
-import pandas as pd
+from geoforge.skills.citation_gap import CitationGapSkill
 
 st.set_page_config(page_title="GeoForge", layout="wide")
 
-st.title("🚀 GeoForge — AI Visibility SaaS")
+st.title("🚀 GeoForge — AI Visibility")
 
-# INPUT
-col1, col2 = st.columns(2)
-
-with col1:
-    target = st.text_input("Target URL")
-
-with col2:
-    competitor = st.text_input("Competitor URL")
-
+target = st.text_input("Target URL")
+competitor = st.text_input("Competitor URL")
 topic = st.text_input("Topic")
 
-# RUN
 if st.button("Analyze"):
 
-    res = requests.post(
-        "http://127.0.0.1:8000/analyze",
-        json={
-            "target_url": target,
-            "competitor_url": competitor,
-            "topic": topic
-        },
-        headers={"x-api-key": "test-key-123"}
-    )
+    if not target or not competitor:
+        st.error("Enter URLs")
+        st.stop()
 
-    data = res.json()["data"]
-    summary = data["summary"]
+    with st.spinner("Running AI analysis..."):
 
-    st.subheader("📊 Visibility Score")
-    st.metric("Score", f"{summary['visibility_score']}%")
+        skill = CitationGapSkill()
 
-    st.progress(summary["visibility_score"] / 100)
+        data = skill.execute(
+            target_url=target,
+            competitor_url=competitor,
+            topic=topic
+        )
 
-    st.subheader("🧠 Query Results")
+        summary = data["summary"]
 
-    for q in data["queries"]:
-        st.write(q["query"])
-        st.write(q["result"]["answer"])
+        st.subheader("📊 Visibility Score")
+        st.metric("Score", f"{summary['visibility_score']}%")
 
-# ---------------------------
-# HISTORY CHART
-# ---------------------------
-st.subheader("📈 Visibility Trend")
+        st.progress(summary["visibility_score"] / 100)
 
-try:
-    conn = sqlite3.connect("geoforge.db")
-    df = pd.read_sql("SELECT * FROM history", conn)
+        st.subheader("🧠 Query Results")
 
-    if not df.empty:
-        df["timestamp"] = pd.to_datetime(df["timestamp"])
-        st.line_chart(df.set_index("timestamp")["score"])
-except:
-    st.info("No history yet")
+        for q in data["queries"]:
+            st.write(q["query"])
+            st.write(q["result"]["answer"])
