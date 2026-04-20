@@ -1,9 +1,9 @@
-[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
+ï»¿[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org)
 
-# GeoForge — AI Citation Intelligence Platform (GEO)
+# GeoForge AI Citation Intelligence Platform (GEO)
 
-GeoForge is an open-source platform that helps you understand **why AI systems (ChatGPT, Claude, Gemini) choose certain content over others** — and how to optimize your content to get cited.
+GeoForge is an open-source platform that helps you understand **why AI systems (ChatGPT, Claude, Gemini) choose certain content over others** and how to optimize your content to get cited.
 
 ---
 
@@ -88,7 +88,7 @@ Compare two webpages and understand:
 
 ---
 
-## ?Architecture
+## Architecture
 
 ```
 Streamlit UI (Frontend)
@@ -106,17 +106,16 @@ SQLite Database
 
 ```
 GeoForge/
-¦
 +-- backend/
-¦   +-- main.py
-¦   +-- auth.py
-¦   +-- __init__.py
-¦
+|   +-- main.py
+|   +-- auth.py
+|   +-- __init__.py
+|
 +-- src/geoforge/
-¦   +-- core/
-¦   +-- engine/
-¦   +-- skills/
-¦
+|   +-- core/
+|   +-- engine/
+|   +-- skills/
+|
 +-- dashboard.py
 +-- requirements.txt
 +-- README.md
@@ -266,11 +265,11 @@ AI is changing how content is discovered.
 
 Instead of asking:
 
-> “How do I rank on Google?”
+> How do I rank on Google?
 
 You now ask:
 
-> “Why does AI mention my competitor instead of me?”
+> Why does AI mention my competitor instead of me?
 
 GeoForge answers that.
 
@@ -284,11 +283,11 @@ If you're building in **AI search / GEO / LLM optimization**, this is your base.
 
 ---
 
-## ? Support
+## Support
 
 If you found this useful:
 
-* ? Star the repo
+* Star the repo
 * Share it
 * Give feedback
 

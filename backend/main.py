@@ -1,40 +1,64 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
+from datetime import datetime
+import sqlite3
+
 from geoforge.skills.citation_gap import CitationGapSkill
-from backend.auth import verify_api_key
 
-app = FastAPI(title="GeoForge API")
+app = FastAPI()
+
+API_KEYS = {"test-key-123": "user"}
+USAGE = {}
+
+def verify_api_key(x_api_key: str = Header(...)):
+    if x_api_key not in API_KEYS:
+        raise HTTPException(status_code=401)
+
+    count = USAGE.get(x_api_key, 0)
+    if count >= 5:
+        raise HTTPException(status_code=429, detail="Limit reached")
+
+    USAGE[x_api_key] = count + 1
+    return API_KEYS[x_api_key]
 
 
-class AnalysisRequest(BaseModel):
+class Req(BaseModel):
     target_url: str
     competitor_url: str
+    topic: str = "business"
 
 
-@app.get("/")
-def home():
-    return {"message": "GeoForge API running"}
+def save(data):
+    conn = sqlite3.connect("geoforge.db")
+    c = conn.cursor()
+
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS history (
+        id INTEGER PRIMARY KEY,
+        timestamp TEXT,
+        score INTEGER
+    )
+    """)
+
+    c.execute(
+        "INSERT INTO history (timestamp, score) VALUES (?, ?)",
+        (datetime.now().isoformat(), data["summary"]["visibility_score"])
+    )
+
+    conn.commit()
+    conn.close()
 
 
 @app.post("/analyze")
-def analyze(data: AnalysisRequest, user=Depends(verify_api_key)):
-    try:
-        skill = CitationGapSkill()
+def analyze(req: Req, user=verify_api_key):
+    skill = CitationGapSkill()
 
-        result = skill.run(
-            target_url=data.target_url,
-            competitor_url=data.competitor_url
-        )
+    output = skill.execute(
+        target_url=req.target_url,
+        competitor_url=req.competitor_url,
+        topic=req.topic
+    )
 
-        output = result.model_dump()
+    save(output)
 
-        print("DEBUG OUTPUT:", output)
-
-        return output
-
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "data": None
-        }
+    return {"success": True, "data": output}
