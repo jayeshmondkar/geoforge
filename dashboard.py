@@ -1,4 +1,10 @@
 ﻿import streamlit as st
+import sys
+import os
+
+# ✅ ADD THIS (critical fix)
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
 from geoforge.skills.citation_gap import CitationGapSkill
 
 st.set_page_config(page_title="GeoForge", layout="wide")
